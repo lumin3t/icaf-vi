@@ -1,0 +1,244 @@
+{
+  "meta": {
+    "itsar_id": "ITSAR111092401",
+    "itsar_version": "1.0"
+  },
+
+  "sections": {
+    "1_access_authorization": {
+      "heading": "1. Access and Authorization",
+      "body": "This section verifies that access to the DUT is restricted to authorized entities using secure communication mechanisms."
+    },
+    "2_cryptographic_communication": {
+      "heading": "2. Cryptographic Based Secure Communication",
+      "body": "The DUT shall protect data in transit using industry-standard and NIST-recommended cryptographic protocols and algorithms."
+    },
+    "3_requirement_description": {
+      "heading": "3. Requirement Description",
+      "body": "Secure communication mechanism between the Network product and the connected entities shall use only the industry standard and NIST recommended cryptographic protocols such as IPSEC, VPN, SSH, TLS/SSL, etc. Also, Network product shall provide all cryptographic service such as encryption, decryption, key exchange, authentication, data integrity etc. using the industry accepted and NIST recommended cryptographic algorithms (with standard key lengths) such as SHA, Diffie-Hellman, AES, RSA etc"
+    },
+    "4_dut_config": {
+      "heading": "4. DUT Configuration",
+      "sub_4_1": {
+        "heading": "4.1 Verification of Supported Communication Protocols",
+        "body": "Nmap scanning was performed to identify the communication protocols and services supported by the DUT."
+      },
+      "sub_4_2": {
+        "heading": "4.2 SSH Host Key Configuration",
+        "body": "The client was configured to store the DUT's SSH host key in the known_hosts file, ensuring mutual authentication during SSH connection establishment."
+      }
+    },
+    "5_preconditions": {
+      "heading": "5. Preconditions",
+      "bullets": [
+        "OEM should provide the list of entities that connect to DUT through which interfaces and the connection protocols between them.",
+        "Network product documentation stating which security protocols for protection of data in transit are implemented and which profiles in TS 33.310 and TS 33.210 are applicable is provided by the vendor."
+      ]
+    },
+    "6_test_objective": {
+      "heading": "6. Test Objective",
+      "body": "To verify if the DUT management traffic shall be protected strictly using secure cryptographic controls prescribed in Table 1 of the latest document \u201cCryptographic Controls For Indian Telecom Security Assurance Requirements (ITSAR)\u201d."
+    },
+    "7_test_scenario": {
+      "heading": "7. Test Scenario",
+      "sub_7_1": {
+        "heading": "7.1 Number of Test Scenarios"
+      },
+      "sub_7_2": {
+        "heading": "7.2 Test Bed Diagram",
+        "testbed_image_path": "/home/gagan-deep/Documents/automate/cipher/Untitled design.jpeg"
+      },
+      "sub_7_3": {
+        "heading": "7.3 Tools Required",
+        "bullets": [
+          "Wireshark",
+          "OpenSSH",
+          "SNMP",
+          "Nmap",
+          "Linux based tester system"
+        ]
+      },
+      "sub_7_4": {
+        "heading": "7.4 Test Execution Steps",
+        "bullets": [
+          "The tester shall establish a secure connection between the network product and the peer and verify that all protocol versions and combinations of cryptographic algorithms that are mandated by the security profile are supported by the network product, using a packet capturing tool (e.g., Wireshark).",
+          "The tester should also try to attempt to connect to DUT using a deliberately unsupported cipher to check if connection to DUT is possible or not."
+        ]
+      }
+    },
+    "8_expected_results": {
+      "heading": "8. Expected Results for Pass",
+      "body": "Handshake of the selected management protocol is completed between DUT and Tester device and data exchanged between DUT and Tester device is encrypted using the selected encryption algorithm."
+    },
+    "9_ssh_execution": {
+      "heading": "9. Test Execution For SSH",
+      "tc1": {
+        "heading": "9.1 Test Case Number: 1",
+        "name_label": "a) Test Case Name:",
+        "name": "TC1_DUT_SUPPORTS_SECURE_CIPHERS",
+        "desc_label": "b) Test Case Description:",
+        "desc": "DUT should support secure ciphers",
+        "steps_label": "c) Execution Steps:",
+        "steps_prefix": "The tester should run the command ",
+        "steps_command": "nmap --script ssh2-enum-algos <ip address>",
+        "steps_suffix": " and check for any unsupported cipher.",
+        "steps_bullets": [
+          "Validate Results",
+          "Capture evidence screenshots"
+        ],
+        "screenshot_title": "Test Case 1 : Executed cmd output: sudo nmap --script ssh2-enum-algos",
+        "sub_sections": {
+          "9_1_1": "9.1.1 DUT-Supported Encryption Algorithms",
+          "9_1_2": "9.1.2 DUT-Supported MAC Algorithms",
+          "9_1_3": "9.1.3 DUT-Supported Key Exchange Algorithms",
+          "9_1_4": "9.1.4 DUT-Supported Host Key Algorithms"
+        }
+      },
+      "tc2": {
+        "heading": "9.2 Test Case Number: 2",
+        "name_label": "a) Test Case Name:",
+        "name": "TC1_PROTECT_DATA_INFO_TRANSFER_USING_SSH",
+        "desc_label": "b) Test Case Description:",
+        "desc": "DUT and tester device should support traffic protection through SSH only through provided cryptographic methods",
+        "steps_label": "c) Execution Steps:",
+        "steps_bullets": [
+          "The tester should attempt to ssh into the DUT and capture the SSH traffic using wireshark",
+          "Analyze the ssh handshake in the p-cap file."
+        ],
+        "sub_9_2_1": "9.2.1 Security Ciphers Utilized During Data Transmission (Verbose Fetch)",
+        "screenshot_titles": [
+          "Test Case 2 : SSH CLI Packet Capture showing SSH Handshake Traffic",
+          "Test Case 2 : SSH Handshake showing {kex_label} Key Exchange Algorithm : {kex_algo}",
+          "Test Case 2 : SSH Data Encryption using {enc_label} Cipher : {cipher_algo}"
+        ],
+        "screenshot_overviews": [
+          "The above screenshot shows the command line packet capture using t-shark while performing SSH communication between the tester system and the DUT. The captured packets include the SSH handshake packets exchanged during the establishment of the SSH session.",
+          "The above screenshot shows the SSH handshake process where the Key Exchange algorithm {kex_algo} is used to securely establish the cryptographic session between the SSH client and server. According to the cryptographic ITSAR guidelines, this key exchange algorithm is classified as {kex_label}.",
+          "The above screenshot shows the encrypted SSH communication packets after the successful handshake process. The Encryption algorithm {cipher_algo} is used to encrypt the SSH data packets exchanged between the client and the DUT. According to the cryptographic ITSAR guidelines, this cipher is classified as {enc_label}."
+        ]
+      },
+      "weak_cipher": {
+        "overview_templates": {
+          "cipher": "The above screenshot shows the SSH negotiation attempt where the weak encryption algorithm {algo} was forced during the SSH communication between the tester system and the DUT. During the SSH handshake process, the client attempted to negotiate this cipher with the server. The result of the negotiation shows that the algorithm was {negotiation_text}. According to the cryptographic ITSAR guidelines, the algorithm {algo} is classified as {status_label}.",
+          "mac": "The above screenshot shows the SSH negotiation attempt where the weak Message Authentication Code (MAC) algorithm {algo} was forced during the SSH communication. The SSH client attempted to use this MAC algorithm while establishing the encrypted session with the DUT. The negotiation result indicates that the algorithm was {negotiation_text}. According to the cryptographic ITSAR guidelines, the MAC algorithm {algo} is classified as {status_label}.",
+          "kex": "The above screenshot shows the SSH handshake process where the weak Key Exchange algorithm {algo} was attempted during the establishment of the SSH session. The client attempted to negotiate this key exchange algorithm with the DUT. The negotiation result shows that the algorithm was {negotiation_text}. According to the cryptographic ITSAR guidelines, the key exchange algorithm {algo} is classified as {status_label}.",
+          "host_key": "The above screenshot shows the SSH handshake process where the weak host key algorithm {algo} was attempted during the authentication phase of the SSH communication. The client attempted to negotiate this host key algorithm with the DUT. The negotiation result indicates that the algorithm was {negotiation_text}. According to the cryptographic ITSAR guidelines, the host key algorithm {algo} is classified as {status_label}.",
+          "default": "The above screenshot shows the SSH negotiation attempt using the algorithm {algo}. The negotiation result indicates that the algorithm was {negotiation_text}. According to the cryptographic ITSAR guidelines, this algorithm is classified as {status_label}."
+        }
+      }
+    },
+    "10_ssh_observation": {
+      "heading": "10. Test Observation for SSH",
+      "pass_text": "It was observed that the Device Under Test (DUT) complies with the prescribed secure cryptographic requirements. All test cases related to secure SSH cipher support, encrypted communication protection, and weak algorithm negotiation have successfully passed.",
+      "fail_prefix": "It was observed that the Device Under Test (DUT) does not fully comply with the prescribed secure cryptographic requirements, as one or more security validation test cases have failed. The failure was identified in the following test case(s): ",
+      "fail_suffix": ". This indicates that the DUT permits insecure cryptographic configurations which may weaken the security of SSH communication.",
+      "failed_test_labels": {
+        "tc1": "secure SSH cipher support (TC1)",
+        "tc2": "secure SSH communication protection (TC2-PART-1)",
+        "tc3": "weak SSH algorithm negotiation protection (TC2-PART-2)"
+      }
+    },
+    "11_ssh_results": {
+      "heading": "11. Test Case Result for SSH",
+      "table_headers": ["SL. No", "TEST CASE NAME", "PASS/FAIL", "Remarks"],
+      "rows": {
+        "tc1": {
+          "sl": "1",
+          "name": "TC1_DUT_SUPPORTS_SECURE_CIPHERS",
+          "pass_remark": "All cryptographic algorithms comply with policy.",
+          "fail_remark": "One or more weak cryptographic algorithms detected."
+        },
+        "tc2": {
+          "sl": "2",
+          "name": "TC2_PROTECT_DATA_INFO_TRANSFER_USING_SSH_PART_1",
+          "pass_remark": "SSH communication is protected using secure cryptographic methods.",
+          "fail_remark": "SSH communication used weak or unsupported cryptographic methods."
+        },
+        "tc3": {
+          "sl": "3",
+          "name": "TC2_SSH_WEAK_ALGORITHM_NEGOTIATION_PART_2",
+          "pass_remark": "The DUT correctly rejects weak SSH algorithms during negotiation.",
+          "fail_remark_prefix": "The DUT allows negotiation of weak SSH algorithms: ",
+          "fail_remark_suffix": "."
+        }
+      }
+    },
+    "12_https_execution": {
+      "heading": "12. Test Execution For HTTPS",
+      "tc1": {
+        "heading": "12.1 Test Case Number: 1",
+        "name_label": "a) Test Case Name:",
+        "name": "TC1_HTTPS_CRYPTO_HARDENING",
+        "desc_label": "b) Test Case Description:",
+        "desc": "DUT should support only strong TLS cryptographic ciphers for HTTPS communication",
+        "steps_label": "c) Execution Steps:",
+        "steps_prefix": "The tester should run the command ",
+        "steps_command": "nmap --script ssl-enum-ciphers -p 443 <ip address>",
+        "steps_suffix": " to enumerate the TLS ciphers supported by the DUT.",
+        "steps_bullets": [
+          "Validate that only strong TLS ciphers are supported.",
+          "Capture evidence screenshots."
+        ],
+        "screenshot_title": "Test Case 1 : Executed cmd output: nmap --script ssl-enum-ciphers -p 443",
+        "sub_sections": {
+          "12_1_1": "12.1.1 DUT-Supported TLSv1.2 Encryption Algorithms",
+          "12_1_2": "12.1.2 DUT-Supported TLSv1.2 MAC Algorithms",
+          "12_1_3": "12.1.3 DUT-Supported TLSv1.2 Key Exchange Algorithms",
+          "12_1_4": "12.1.4 DUT-Supported TLSv1.3 Encryption Algorithms",
+          "12_1_5": "12.1.5 DUT-Supported TLSv1.3 MAC Algorithms",
+          "12_1_6": "12.1.6 DUT-Supported TLSv1.3 Key Exchange Algorithms"
+        }
+      },
+      "tc2": {
+        "heading": "12.2 Test Case Number: 2",
+        "name_label": "a) Test Case Name:",
+        "name": "TC2_PROTECT_DATA_INFO_TRANSFER_USING_HTTPS",
+        "desc_label": "b) Test Case Description:",
+        "desc": "DUT and tester devices should support traffic protection through HTTPS using secure TLS cryptographic protocols.",
+        "steps_label": "c) Execution Steps:",
+        "steps_bullets": [
+          "The tester should initiate HTTPS communication with the DUT using openssl.",
+          "Capture the TLS handshake packets using t-shark.",
+          "Analyze the Server Hello packet in the captured pcap file to identify the TLS protocol version and cipher used during communication."
+        ],
+        "sub_12_2_1": "12.2.1 Security Ciphers Utilized During HTTPS Data Transmission",
+        "screenshot_titles": [
+          "Test Case 2 : HTTPS CLI Packet Capture showing TLS Handshake Traffic",
+          "Test Case 2 : TLS Server Hello showing {cipher_label} Cipher : {cipher}"
+        ],
+        "screenshot_overviews": [
+          "The above screenshot shows the command line packet capture using t-shark while performing HTTPS communication between the tester system and the DUT. The captured packets include the TLS handshake packets exchanged during the establishment of the secure HTTPS session.",
+          "The above screenshot shows the TLS Server Hello packet captured during the HTTPS handshake process. The Server Hello message confirms that the TLS protocol version {protocol} and the cipher suite {cipher} are used to secure the communication between the tester system and the DUT. According to the cryptographic ITSAR guidelines, the cipher {cipher} is classified as {cipher_label}."
+        ]
+      }
+    },
+    "13_https_observation": {
+      "heading": "13. Test Observation for HTTPS",
+      "pass_text": "It was observed that the Device Under Test (DUT) complies with the prescribed secure cryptographic requirements for HTTPS communication. All test cases related to secure TLS cipher support and encrypted HTTPS communication protection have successfully passed.",
+      "fail_prefix": "It was observed that the Device Under Test (DUT) does not fully comply with the prescribed secure cryptographic requirements for HTTPS communication, as one or more security validation test cases have failed. The failure was identified in the following test case(s): ",
+      "fail_suffix": ". This indicates that the DUT permits insecure TLS protocol versions or cryptographic cipher configurations which may weaken the security of HTTPS communication.",
+      "failed_test_labels": {
+        "tc1": "secure HTTPS TLS cipher support (TC1)",
+        "tc2": "secure HTTPS communication protection (TC2)"
+      }
+    },
+    "14_https_results": {
+      "heading": "14. Test Case Result for HTTPS",
+      "table_headers": ["SL. No", "TEST CASE NAME", "PASS/FAIL", "Remarks"],
+      "rows": {
+        "tc1": {
+          "sl": "1",
+          "name": "TC1_HTTPS_CRYPTO_HARDENING",
+          "pass_remark": "HTTPS service supports only secure TLS cryptographic algorithms.",
+          "fail_remark": "Weak or unsupported TLS cryptographic algorithms detected."
+        },
+        "tc2": {
+          "sl": "2",
+          "name": "TC2_PROTECT_DATA_INFO_TRANSFER_USING_HTTPS",
+          "pass_remark": "HTTPS communication is protected using secure TLS protocol and cipher.",
+          "fail_remark": "HTTPS communication used weak or unsupported TLS protocol or cipher."
+        }
+      }
+    }
+  }
+}
