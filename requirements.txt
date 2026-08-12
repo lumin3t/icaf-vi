@@ -7,3 +7,4 @@ pyautogui
 pandas
 pillow
 openpyxl
+paramiko
