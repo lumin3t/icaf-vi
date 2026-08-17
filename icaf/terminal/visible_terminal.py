@@ -39,12 +39,12 @@ class VisibleTerminal(BaseTerminal):
         logger.info("Logging into Alpine...")
         subprocess.run([
             "tmux", "send-keys", "-t", self.session,
-            "ssh -o StrictHostKeyChecking=no root@192.168.56.101", "Enter"
+            "ssh -o StrictHostKeyChecking=no root@192.168.56.102", "Enter"
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(4)
 
         terminal_renderer.add_raw_line(
-            "ssh -o StrictHostKeyChecking=no root@192.168.56.101", color="dim"
+            "ssh -o StrictHostKeyChecking=no root@192.168.56.102", color="dim"
         )
 
         subprocess.run([

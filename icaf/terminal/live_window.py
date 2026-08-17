@@ -39,8 +39,8 @@ class LiveTerminalWindow:
             )
             self.text_widget.pack(fill="both", expand=True, padx=10, pady=10)
 
-            self.add_line("bhavya@Ubuntu:~/icaf_1.6.5$ ssh root@192.168.56.101")
-            self.add_line("root@192.168.56.101's password: ")
+            self.add_line("bhavya@Ubuntu:~/icaf_1.6.5$ ssh root@192.168.56.102")
+            self.add_line("root@192.168.56.102's password: ")
             self.add_line("Welcome to Alpine!", delay=0.5)
             self.add_line("localhost:~# ", delay=0.8)
 
