@@ -8,3 +8,6 @@ pandas
 pillow
 openpyxl
 paramiko
+fastapi
+uvicorn[standard]
+python-multipart
