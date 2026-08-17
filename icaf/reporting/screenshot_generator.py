@@ -70,8 +70,8 @@ def render_ubuntu_terminal_screenshot(tc_id, tc_name, command, output, verdict, 
     root_prompt   = "root@localhost:~# "
 
     rows = []
-    rows.append(("prompt_ubuntu", ubuntu_prompt, "ssh root@192.168.56.101"))
-    rows.append(("out",           "",             "root@192.168.56.101's password:"))
+    rows.append(("prompt_ubuntu", ubuntu_prompt, "ssh root@192.168.56.102"))
+    rows.append(("out",           "",             "root@192.168.56.102's password:"))
     rows.append(("out",           "",             "Welcome to Alpine Linux"))
     rows.append(("out",           "",             ""))
 
