@@ -1,33 +1,51 @@
-def _get_registry():
-    """
-    Lazy registry — clause modules are only imported when actually needed.
-    This prevents transitive import errors at startup.
-    """
+def _load_clause_111():
     from icaf.clauses.clause_1_1_1.clause import Clause_1_1_1
-    from icaf.clauses.clause_1_6_1.clause import Clause_1_6_1
-    from icaf.clauses.clause_1_2_4.clause import Clause_1_2_4
-    from icaf.clauses.clause_1_6_5.clause_1_6_5_clause import Clause_1_6_5
+    return Clause_1_1_1
 
-    return {
-        "1.1.1": Clause_1_1_1,
-        "1.6.1": Clause_1_6_1,
-        "1.2.4": Clause_1_2_4,
-        "1.6.5": Clause_1_6_5,
-    }
+
+def _load_clause_124():
+    from icaf.clauses.clause_1_2_4.clause import Clause_1_2_4
+    return Clause_1_2_4
+
+
+def _load_clause_161():
+    from icaf.clauses.clause_1_6_1.clause import Clause_1_6_1
+    return Clause_1_6_1
+
+
+def _load_clause_165():
+    from icaf.clauses.clause_1_6_5.clause_1_6_5_clause import Clause_1_6_5
+    return Clause_1_6_5
+
+
+def _load_clause_193():
+    from icaf.clauses.clause_1_9_3.clause import Clause_1_9_3
+    return Clause_1_9_3
+
+
+_CLAUSE_LOADERS = {
+    "1.1.1": _load_clause_111,
+    "1.2.4": _load_clause_124,
+    "1.6.1": _load_clause_161,
+    "1.6.5": _load_clause_165,
+    "1.9.3": _load_clause_193,
+}
 
 
 # Keep CLAUSE_REGISTRY as a dict-like proxy for backward compatibility
 class _LazyRegistry(dict):
-    def __missing__(self, key):
-        # Trigger full load if key not found
-        self.update(_get_registry())
-        if key in self:
-            return self[key]
-        raise KeyError(f"Clause {key!r} not registered")
+    """Load each clause independently to avoid unrelated dependencies."""
+
+    def _load(self, key):
+        if not dict.__contains__(self, key) and key in _CLAUSE_LOADERS:
+            self[key] = _CLAUSE_LOADERS[key]()
+
+    def __getitem__(self, key):
+        self._load(key)
+        return super().__getitem__(key)
 
     def __contains__(self, key):
-        if not dict.__len__(self):
-            self.update(_get_registry())
+        self._load(key)
         return dict.__contains__(self, key)
 
 

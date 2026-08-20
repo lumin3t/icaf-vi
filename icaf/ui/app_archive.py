@@ -18,6 +18,7 @@ CLAUSES = {
     "1.2.4": "Password Policy Compliance",
     "1.6.1": "Network Security",
     "1.6.5": "Secure Remote Access",
+    "1.9.3": "Credential-based Vulnerability Scanning",
 }
 
 # Theme Palette (Vibrant Dark Theme)
