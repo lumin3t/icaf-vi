@@ -105,11 +105,26 @@ class Engine:
         if ssh_only:
             # Clause 1.2.4 needs the dut terminal (tmux + gnome-terminal)
             # for real scrot screenshots — same as clause 1.1.1 uses "tester"
-            tm.create_terminal("dut")
+            tm.create_terminal(
+                "dut",
+                ssh_ip=self.context.ssh_ip,
+                ssh_user=self.context.ssh_user,
+                ssh_password=self.context.ssh_password,
+            )
             logger.info(f"Clause {clause}: created 'dut'  terminal (SSH-only clause)")
         else:
-            tm.create_terminal("tester")
-            tm.create_terminal("dut")
+            tm.create_terminal(
+                "tester",
+                ssh_ip=self.context.ssh_ip,
+                ssh_user=self.context.ssh_user,
+                ssh_password=self.context.ssh_password,
+            )
+            tm.create_terminal(
+                "dut",
+                ssh_ip=self.context.ssh_ip,
+                ssh_user=self.context.ssh_user,
+                ssh_password=self.context.ssh_password,
+            )
 
         logger.info("Terminals created")
 
