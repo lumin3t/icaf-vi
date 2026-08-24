@@ -88,11 +88,13 @@ class VisibleTerminal(BaseTerminal):
 
         subprocess.run([
             "tmux", "send-keys", "-t", self.session,
-            ssh_cmd, "Enter"
+            "ssh -o StrictHostKeyChecking=no root@192.168.56.102", "Enter"
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(4)
 
-        terminal_renderer.add_raw_line(ssh_cmd, color="dim")
+        terminal_renderer.add_raw_line(
+            "ssh -o StrictHostKeyChecking=no root@192.168.56.102", color="dim"
+        )
 
         subprocess.run([
             "tmux", "send-keys", "-t", self.session,

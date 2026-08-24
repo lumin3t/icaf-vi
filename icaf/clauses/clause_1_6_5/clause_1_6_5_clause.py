@@ -274,7 +274,7 @@ class _SSHWrapper:
         try:
             return self._client.get_transport().getpeername()[0]
         except Exception:
-            return "192.168.56.101"
+            return "192.168.56.102"
 
     def run(self, command, sudo=False, input_text=None):
         use_pty = (

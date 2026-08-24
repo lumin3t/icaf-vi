@@ -7,7 +7,7 @@ from icaf.utils.dut_info import get_dut_info
 from icaf.config.profile_loader import ProfileLoader
 
 # Clauses that only need SSH — no browser, no extra terminals
-_SSH_ONLY_CLAUSES = {"1.2.4","1.6.5"}
+_SSH_ONLY_CLAUSES = {"1.2.4", "1.6.5", "1.9.3"}
 
 
 class Engine:
@@ -80,7 +80,15 @@ class Engine:
             logger.info(f"{tc.name} → {tc.status}")
 
         report_manager = ReportManager()
-        report_manager.generate(self.context, results)
+        report_path = report_manager.generate(self.context, results)
+
+        # Returning these values is backward compatible with the CLI/PyQt callers
+        # and gives the local web runner a stable hand-off point for artifacts.
+        return {
+            "report_path": report_path,
+            "context": self.context,
+            "results": results,
+        }
 
     def initialize_runtime(self):
 

@@ -76,7 +76,7 @@ def run(ssh):
     all_pass = True
     summary  = []
 
-    host = ssh._host or "192.168.56.101"
+    host = ssh._host or "192.168.56.102"
 
     # ── Setup ──────────────────────────────────────────────────────────────
     out, err, _ = ssh.run(f"/usr/sbin/adduser -D {_UNPRIV_USER} 2>&1 || true")
