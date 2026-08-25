@@ -23,9 +23,11 @@ class ReportFactory:
         if clause == "1.6.5":
             from icaf.reporting.clause_reports.clause_1_6_5_report import Clause165Report
             return Clause165Report(context, results)
-
         if clause == "1.9.3":
             from icaf.reporting.clause_reports.clause_1_9_3_report import Clause193Report
             return Clause193Report(context, results)
+        if clause == "1.1.3":
+            from icaf.reporting.clause_reports.clause_1_1_3_report import Clause113Report
+            return Clause113Report(context, results)
 
         raise Exception(f"No report template for clause {clause}")

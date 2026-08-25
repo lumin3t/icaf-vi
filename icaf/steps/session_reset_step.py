@@ -15,6 +15,10 @@ Improvements over original
 • Accepts a post_reset_delay parameter (default 3 s) used as a between-TC
   breathing gap.  The caller (TC code) can override this per-TC.
 • Logs the final terminal state so failures are easy to diagnose.
+• Empty/unreadable pane capture is treated as "unknown state" and retried —
+  NOT as evidence of disconnection. A transient capture failure (pane not
+  yet settled) must never be mistaken for a real disconnect, since that
+  leaves the next test case typing commands into a still-live session.
 """
 
 import time
@@ -37,6 +41,10 @@ _DISCONNECTED_INDICATORS = [
     "not connected",
 ]
 
+# How many times to retry a capture that came back empty before giving up
+# and falling through to the Ctrl+C escape hatch anyway.
+_MAX_EMPTY_CAPTURE_RETRIES = 3
+
 
 class SessionResetStep(Step):
     """
@@ -57,7 +65,7 @@ class SessionResetStep(Step):
         self,
         terminal: str,
         post_reset_delay: float = 3.0,
-        max_exit_attempts: int = 3,
+        max_exit_attempts: int = 1,
     ):
         super().__init__("Reset session")
         self.terminal         = terminal
@@ -79,9 +87,37 @@ class SessionResetStep(Step):
         # Each exit unwinds one shell layer (DUT CLI → bash → bare terminal).
         for attempt in range(1, self.max_exit_attempts + 1):
             tm.run(self.terminal, "exit")
-            time.sleep(1.2)
+            time.sleep(2.0)
 
-            output = tm.capture_output(self.terminal).lower()
+            # Give a genuinely empty pane capture a couple of extra chances
+            # before treating it as meaningful — it usually just means the
+            # tmux pane hadn't settled yet, not that the session is gone.
+            output = ""
+            for capture_try in range(_MAX_EMPTY_CAPTURE_RETRIES):
+                output = tm.capture_output(self.terminal)
+                if output.strip():
+                    break
+                logger.debug(
+                    "SessionReset: empty capture on attempt %d (try %d/%d) — "
+                    "retrying capture before drawing any conclusion",
+                    attempt, capture_try + 1, _MAX_EMPTY_CAPTURE_RETRIES,
+                )
+                time.sleep(1.0)
+
+            if not output.strip():
+                # We genuinely could not read the pane after several tries.
+                # Do NOT assume disconnected — that's an unverified guess
+                # that leaves the next TC talking to an unknown session
+                # state. Just move on to the next exit attempt.
+                logger.warning(
+                    "SessionReset: could not capture any output after %d exit(s) "
+                    "— terminal state unknown, retrying exit instead of "
+                    "assuming disconnected",
+                    attempt,
+                )
+                continue
+
+            output = output.lower()
 
             # If we see a disconnection indicator, we're done
             if any(ind in output for ind in _DISCONNECTED_INDICATORS):
@@ -91,7 +127,8 @@ class SessionResetStep(Step):
                 )
                 break
 
-            # If no live-session prompt is visible, also consider us done
+            # If no live-session prompt is visible, also consider us done —
+            # this branch is now only reached with REAL (non-empty) output.
             if not any(ind in output for ind in _LIVE_SESSION_INDICATORS):
                 logger.info(
                     "SessionReset: no live-session prompt detected after "

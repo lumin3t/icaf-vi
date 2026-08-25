@@ -1,5 +1,19 @@
 def _load_clause_111():
     from icaf.clauses.clause_1_1_1.clause import Clause_1_1_1
+    from icaf.clauses.clause_1_1_3.clause import Clause_1_1_3
+    from icaf.clauses.clause_1_6_1.clause import Clause_1_6_1
+    from icaf.clauses.clause_1_2_4.clause import Clause_1_2_4
+    from icaf.clauses.clause_1_9_3.clause import Clause_1_9_3
+    from icaf.clauses.clause_1_6_5.clause_1_6_5_clause import Clause_1_6_5
+
+    return {
+        "1.1.1": Clause_1_1_1,
+        "1.1.3": Clause_1_1_3,
+        "1.6.1": Clause_1_6_1,
+        "1.2.4": Clause_1_2_4,
+        "1.6.5": Clause_1_6_5,
+        "1.9.3": Clause_1_9_3,
+    }
     return Clause_1_1_1
 
 
@@ -22,6 +36,9 @@ def _load_clause_193():
     from icaf.clauses.clause_1_9_3.clause import Clause_1_9_3
     return Clause_1_9_3
 
+def _load_clause_113():
+    from icaf.clauses.clause_1_1_3.clause import Clause_1_1_3
+    return Clause_1_1_3
 
 _CLAUSE_LOADERS = {
     "1.1.1": _load_clause_111,
@@ -29,6 +46,7 @@ _CLAUSE_LOADERS = {
     "1.6.1": _load_clause_161,
     "1.6.5": _load_clause_165,
     "1.9.3": _load_clause_193,
+    "1.1.3": _load_clause_113,
 }
 
 
