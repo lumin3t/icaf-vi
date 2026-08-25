@@ -84,6 +84,7 @@ class RuntimeContext:
             "1.6.1": "1.6.1 Software Update",
             "1.6.5": "1.6.5 Protecting Data and Information in Storage",
             "1.9.3": "1.9.3 Vulnerability Scanning",
+            "1.2.1": "1.2.1 Authentication Policy",
         }.get(clause or "", "ITSAR Compliance")
 
         self.oam_context = oam_context

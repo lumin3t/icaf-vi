@@ -238,6 +238,25 @@ button { cursor: pointer; }
 }
 .primary-button:hover { background: #1a4480; border-color: #1a4480; }
 .primary-button:disabled { cursor: not-allowed; background: #cbd5e1; border-color: #cbd5e1; color: #64748b; }
+.configure-button { color: #0f172a; border-color: #94a3b8; }
+
+/* Configuration confirmation and clause execution plan */
+.execution-plan-card { margin-top: 20px; overflow: hidden; background: #fff; border: 1px solid #bfdbfe; border-radius: 10px; box-shadow: 0 8px 24px rgba(30, 64, 175, 0.08); }
+.execution-plan-header { display: flex; align-items: center; gap: 14px; padding: 20px; background: linear-gradient(120deg, #eff6ff, #fff); border-bottom: 1px solid #dbeafe; }
+.plan-icon { display: grid; place-items: center; flex: 0 0 auto; width: 44px; height: 44px; color: #075985; background: #dff3fb; border-radius: 8px; }
+.execution-plan-header .eyebrow { margin-bottom: 3px; }
+.execution-plan-header h2 { margin: 0; color: #0f172a; font-size: 16px; }
+.execution-plan-header p:last-child { margin: 4px 0 0; color: #64748b; font-size: 12px; }
+.plan-summary { display: flex; align-items: baseline; gap: 6px; padding: 12px 20px; color: #475569; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+.plan-summary strong { color: #005ea2; font-size: 20px; }
+.testcase-plan { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.testcase-plan li { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f1f5f9; }
+.testcase-id { align-self: start; width: max-content; color: #075985; background: #e0f2fe; border: 1px solid #bae6fd; padding: 3px 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 700; }
+.testcase-plan strong { display: block; color: #0f172a; font-size: 13px; }
+.testcase-plan p, .plan-empty { margin: 3px 0 0; color: #64748b; font-size: 12px; line-height: 1.45; }
+.plan-empty { padding: 20px; }
+.plan-run-row { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: #fafcff; }
+.plan-run-row span { color: #64748b; font-size: 12px; }
 
 .error-message {
   color: #991b1b;
@@ -344,6 +363,8 @@ td small { display: block; color: #64748b; margin-top: 2px; font-size: 11px; }
   .header-mark { display: none; }
   .brand-subtitle, .brand-divider { display: none; }
   .action-row { align-items: flex-start; flex-direction: column; }
+  .plan-run-row { align-items: flex-start; flex-direction: column; }
+  .testcase-plan li { grid-template-columns: 1fr; gap: 7px; }
   th:nth-child(2), td:nth-child(2) { display: none; }
   .hero-panel { padding: 24px; }
   .hero-icon { display: none; }

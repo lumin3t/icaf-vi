@@ -14,19 +14,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from icaf.config.settings import initialize_directories, settings
+from icaf.clauses.catalog import clause_names, execution_plan
 from icaf.core.engine import Engine
 from icaf.oam.oam_manager import process_oam
 from icaf.utils.logger import logger
 from icaf.web.storage import RunStore, utc_now
 
 
-CLAUSES = {
-    "1.1.1": "Secure Management Protocols",
-    "1.2.4": "Password Policy Compliance",
-    "1.6.1": "Network Security",
-    "1.6.5": "Secure Remote Access",
-    "1.9.3": "Credential-based Vulnerability Scanning",
-}
+CLAUSES = clause_names()
 WEB_OUTPUT_DIR = settings.OUTPUT_DIR / "web"
 ARTIFACTS_DIR = WEB_OUTPUT_DIR / "runs"
 STORE = RunStore(WEB_OUTPUT_DIR / "runs.sqlite3")
@@ -55,7 +50,11 @@ app = FastAPI(title="ICAF Local Web UI", version="0.1.0")
 def configuration() -> dict[str, object]:
     profile_dir = settings.BASE_DIR / "icaf" / "profile"
     profiles = sorted({path.stem for path in profile_dir.glob("*.yaml")} | {path.stem for path in profile_dir.glob("*.yml")})
-    return {"clauses": CLAUSES, "profiles": profiles or ["default"]}
+    return {
+        "clauses": CLAUSES,
+        "profiles": profiles or ["default"],
+        "testcases": {clause_id: execution_plan(clause_id) for clause_id in CLAUSES},
+    }
 
 
 @app.post("/api/runs", status_code=202)

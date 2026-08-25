@@ -1,12 +1,12 @@
-import { CheckCircle2, ClipboardCheck, FolderOpen, LoaderCircle, MonitorCog, XCircle } from 'lucide-react'
+import { CheckCircle2, ClipboardCheck, FolderOpen, LoaderCircle, MonitorCog, Play, ServerCog, XCircle } from 'lucide-react'
 import Field from '../components/Field'
 import PageHeader from '../components/PageHeader'
 
-export default function ConfigurePage({ form, config, oamFile, error, submitting, onField, onFile, onSubmit }) {
+export default function ConfigurePage({ form, config, oamFile, error, submitting, configuredPlan, onField, onFile, onConfigure, onSubmit }) {
   const extended = form.clause === '1.1.1'
   return <>
     <PageHeader eyebrow="Compliance execution" title="Configure a new check" description="Set the target device and requirements for this validation." icon={MonitorCog} />
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onConfigure}>
       <section className="panel"><div className="panel-title"><h2>Session parameters</h2><p>Required device connection and compliance settings.</p></div>
         <div className="form-grid">
           <Field label="Compliance clause"><select name="clause" value={form.clause} onChange={onField}>{Object.entries(config.clauses).map(([value, label]) => <option key={value} value={value}>{value} — {label}</option>)}</select></Field>
@@ -29,7 +29,14 @@ export default function ConfigurePage({ form, config, oamFile, error, submitting
         </div>
       </section>}
       {error && <div className="error-message"><XCircle size={17} />{error}</div>}
-      <div className="action-row"><button className="primary-button" disabled={submitting}>{submitting ? <LoaderCircle className="spin" size={18} /> : <CheckCircle2 size={18} />}{submitting ? 'Starting check…' : 'Start compliance check'}</button><span>Artifacts and logs stay on this machine.</span></div>
+      <div className="action-row"><button type="submit" className="secondary-button configure-button"><ServerCog size={18} />Configure DUT</button><span>Review the execution plan before starting the check.</span></div>
+
+      {configuredPlan && <section className="execution-plan-card" aria-live="polite">
+        <div className="execution-plan-header"><div className="plan-icon"><ClipboardCheck size={22} /></div><div><p className="eyebrow">DUT configuration ready</p><h2>{configuredPlan.clause} — {config.clauses[configuredPlan.clause]}</h2><p>Target {configuredPlan.target} · Profile {configuredPlan.profile}</p></div></div>
+        <div className="plan-summary"><strong>{configuredPlan.testcases.length}</strong><span>test case{configuredPlan.testcases.length === 1 ? '' : 's'} scheduled</span></div>
+        {configuredPlan.testcases.length > 0 ? <ol className="testcase-plan">{configuredPlan.testcases.map(testcase => <li key={testcase.id}><span className="testcase-id">{testcase.id}</span><div><strong>{testcase.name}</strong><p>{testcase.description}</p></div></li>)}</ol> : <p className="plan-empty">The clause is configured and its suite will be resolved by the execution engine.</p>}
+        <div className="plan-run-row"><button type="button" className="primary-button" onClick={onSubmit} disabled={submitting}>{submitting ? <LoaderCircle className="spin" size={18} /> : <Play size={18} fill="currentColor" />}{submitting ? 'Starting check…' : 'Start compliance check'}</button><span>Artifacts and logs stay on this machine.</span></div>
+      </section>}
     </form>
   </>
 }

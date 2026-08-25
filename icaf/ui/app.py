@@ -30,16 +30,11 @@ from PyQt6.QtWidgets import (
 
 # Import existing backend dependencies
 from icaf.config.settings import initialize_directories, settings
+from icaf.clauses.catalog import clause_names
 from icaf.core.engine import Engine
 from icaf.utils.logger import logger
 
-CLAUSES = {
-    "1.1.1": "Secure Management Protocols",
-    "1.2.4": "Password Policy Compliance",
-    "1.6.1": "Network Security",
-    "1.6.5": "Secure Remote Access",
-    "1.9.3": "Credential-based Vulnerability Scanning",
-}
+CLAUSES = clause_names()
 
 
 # ----------------------------------------------------------------------

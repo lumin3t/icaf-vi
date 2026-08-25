@@ -11,6 +11,7 @@ from rich.live import Live
 from icaf.config.settings import initialize_directories
 from icaf.utils.logger import logger
 from icaf.core.engine import Engine
+from icaf.clauses.catalog import clause_names
 
 import os
 import yaml
@@ -87,6 +88,9 @@ def run(
 
     show_banner()
 
+    if clause and clause not in clause_names():
+        raise typer.BadParameter(f"Unsupported clause '{clause}'. Available clauses: {', '.join(clause_names())}")
+
     initialize_directories()
 
     logger.info("ICAF CLI started")
@@ -126,6 +130,13 @@ def run(
         console.print(
             "\n[bold green]Clause 1.9.3 — Vulnerability Scanning[/bold green]\n"
             "Authenticated vulnerability scan: SSH target credentials will be used for auditing.\n"
+        )
+
+    elif clause == "1.2.1":
+        # Authentication Policy — SSH only, no SNMP or web credentials needed
+        console.print(
+            "\n[bold green]Clause 1.2.1 — Authentication Policy[/bold green]\n"
+            "Authentication Policy check: SFTP, SSH, SCP \n"
         )
 
     elif clause == "1.1.1":

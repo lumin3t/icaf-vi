@@ -7,7 +7,7 @@ from icaf.utils.dut_info import get_dut_info
 from icaf.config.profile_loader import ProfileLoader
 
 # Clauses that only need SSH — no browser, no extra terminals
-_SSH_ONLY_CLAUSES = {"1.2.4", "1.6.5", "1.9.3"}
+_SSH_ONLY_CLAUSES = {"1.1.3", "1.2.1", "1.2.4", "1.6.5", "1.9.3"}
 
 
 class Engine:

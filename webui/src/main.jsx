@@ -21,6 +21,7 @@ function App() {
   const [selectedRun, setSelectedRun] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [configuredPlan, setConfiguredPlan] = useState(null)
 
   const refreshRuns = async () => {
     try {
@@ -56,7 +57,21 @@ function App() {
     [runs, selectedRun],
   )
 
-  const onField = event => setForm(current => ({ ...current, [event.target.name]: event.target.value }))
+  const onField = event => {
+    setConfiguredPlan(null)
+    setForm(current => ({ ...current, [event.target.name]: event.target.value }))
+  }
+
+  const configureDut = event => {
+    event.preventDefault()
+    setError('')
+    setConfiguredPlan({
+      clause: form.clause,
+      target: form.ssh_ip,
+      profile: form.profile,
+      testcases: config.testcases?.[form.clause] || [],
+    })
+  }
 
   const startRun = async event => {
     event.preventDefault()
@@ -91,7 +106,7 @@ function App() {
 
   const pages = {
     dashboard: <DashboardPage runs={runs} onConfigure={() => navigate('configure')} onOpenHistory={() => navigate('history')} />,
-    configure: <ConfigurePage form={form} config={config} oamFile={oamFile} error={error} submitting={submitting} onField={onField} onFile={setOamFile} onSubmit={startRun} />,
+    configure: <ConfigurePage form={form} config={config} oamFile={oamFile} error={error} submitting={submitting} configuredPlan={configuredPlan} onField={onField} onFile={setOamFile} onConfigure={configureDut} onSubmit={startRun} />,
     history: <RunHistoryPage 
               runs={runs} 
               selectedRun={selectedRun ? { ...selectedSummary, ...selectedRun } : null} 
