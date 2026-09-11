@@ -3,6 +3,8 @@ icaf/terminal/visible_terminal.py
 Commands now EXECUTE in the visible terminal AND mirror to the renderer.
 """
 
+import os
+import shutil
 import subprocess
 import time
 from icaf.utils.logger import logger
@@ -15,8 +17,6 @@ class VisibleTerminal(BaseTerminal):
     PROMPT = "root@alpine:~#"
 
     # Last-resort fallback values only - used if no credentials are passed in.
-    # These exist so the terminal doesn't crash if something upstream forgets
-    # to supply real values, but should not be relied on.
     _FALLBACK_IP = "192.168.56.101"
     _FALLBACK_USER = "root"
     _FALLBACK_PASSWORD = "Root@Alpine1"
@@ -24,6 +24,7 @@ class VisibleTerminal(BaseTerminal):
     def __init__(self, name, ssh_ip=None, ssh_user=None, ssh_password=None):
         super().__init__(name)
         self.session = f"TCAF-{name}"
+        self.window_id = None
 
         self.ssh_ip = ssh_ip or self._FALLBACK_IP
         self.ssh_user = ssh_user or self._FALLBACK_USER
@@ -39,24 +40,55 @@ class VisibleTerminal(BaseTerminal):
 
         self._open_session()
 
+    def _get_active_window_id(self):
+        """Safely fetch active window ID without crashing in headless/Wayland environments."""
+        if not shutil.which("xdotool"):
+            return None
+
+        # Ensure DISPLAY is available
+        if not os.environ.get("DISPLAY"):
+            return None
+
+        try:
+            return subprocess.check_output(
+                ["xdotool", "getactivewindow"],
+                stderr=subprocess.DEVNULL,
+                timeout=2
+            ).decode().strip()
+        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
     def _open_session(self):
-        """Create the tmux session + gnome-terminal window and log in."""
+        """Create the tmux session + optional gnome-terminal window and log in."""
         logger.info("Opening visible Alpine terminal...")
 
-        # Kill old session
+        # Kill old session if lingering
         subprocess.run(
             ["tmux", "kill-session", "-t", self.session],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False
         )
-        # Create tmux session
+
+        # Create tmux session detached
         subprocess.run(["tmux", "new-session", "-d", "-s", self.session])
-        # Open visible terminal
-        subprocess.Popen([
-            "gnome-terminal", "--title", "TCAF Live — Alpine DUT",
-            "--geometry", "150x60",
-            "--", "tmux", "attach-session", "-t", self.session
-        ])
-        time.sleep(3.5)
+
+        # Attempt to launch visible GUI terminal if DISPLAY and gnome-terminal are available
+        has_display = bool(os.environ.get("DISPLAY"))
+        has_gnome_term = bool(shutil.which("gnome-terminal"))
+
+        if has_display and has_gnome_term:
+            try:
+                subprocess.Popen([
+                    "gnome-terminal", "--title", f"TCAF Live — {self.name}",
+                    "--geometry", "150x60",
+                    "--", "tmux", "attach-session", "-t", self.session
+                ])
+                time.sleep(2.0)
+                self.window_id = self._get_active_window_id()
+            except Exception as e:
+                logger.warning(f"[VisibleTerminal] Could not launch GUI terminal ({e}). Running detached.")
+        else:
+            logger.info("[VisibleTerminal] Running in headless/background tmux mode (no GUI window mapped).")
+
         self._auto_login()
 
     def _session_alive(self) -> bool:
@@ -68,52 +100,43 @@ class VisibleTerminal(BaseTerminal):
         return result.returncode == 0
 
     def _ensure_session_alive(self):
-        """
-        If the tmux session died (e.g. its shell process exited), recreate
-        it and log back in, instead of silently sending commands into a
-        session that no longer exists.
-        """
+        """Recreate the session if it died unexpectedly."""
         if not self._session_alive():
             logger.warning(
-                "[VisibleTerminal] Session '%s' is dead — recreating and "
-                "logging back in.",
+                "[VisibleTerminal] Session '%s' is dead — recreating and logging back in.",
                 self.session,
             )
             self._open_session()
 
     def _auto_login(self):
-        logger.info("Logging into Alpine...")
+        """Log into the target DUT using dynamic SSH parameters."""
+        logger.info("Logging into Alpine DUT (%s@%s)...", self.ssh_user, self.ssh_ip)
 
         ssh_cmd = f"ssh -o StrictHostKeyChecking=no {self.ssh_user}@{self.ssh_ip}"
 
         subprocess.run([
             "tmux", "send-keys", "-t", self.session,
-            "ssh -o StrictHostKeyChecking=no root@192.168.56.102", "Enter"
+            ssh_cmd, "Enter"
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(4)
+        time.sleep(3)
 
-        terminal_renderer.add_raw_line(
-            "ssh -o StrictHostKeyChecking=no root@192.168.56.102", color="dim"
-        )
+        terminal_renderer.add_raw_line(ssh_cmd, color="dim")
 
         subprocess.run([
             "tmux", "send-keys", "-t", self.session,
             self.ssh_password, "Enter"
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(3)
+        time.sleep(2)
 
         terminal_renderer.add_raw_line("(login)", color="dim")
 
     def run(self, command, screenshot_path=None):
         """Execute in visible terminal AND mirror to renderer."""
-        # Self-heal: if the tmux session died since the last command
-        # (e.g. an over-eager "exit" killed the underlying shell), recreate
-        # it and log back in before trying to send anything else.
         self._ensure_session_alive()
 
         logger.info(f"[VisibleTerminal] Executing: {command}")
 
-        # 1. Mirror the command to the renderer immediately
+        # 1. Mirror command to renderer
         terminal_renderer.add_command_with_prompt(self.PROMPT, command)
 
         # 2. Send to tmux
@@ -125,8 +148,8 @@ class VisibleTerminal(BaseTerminal):
             logger.error(f"[VisibleTerminal] send-keys failed: {e}")
             return
 
-        # 3. Wait for output
-        time.sleep(3.0)
+        # 3. Wait for execution
+        time.sleep(2.0)
 
         # 4. Capture pane output and push to renderer
         output = self._capture_pane_output()
@@ -141,11 +164,7 @@ class VisibleTerminal(BaseTerminal):
             terminal_renderer.render(screenshot_path)
 
     def _capture_pane_output(self) -> str:
-        """
-        Capture recent lines from the tmux pane.
-        Returns only the *new* lines since last prompt (heuristic: last 20 lines,
-        strip the prompt line itself and any blank trailing lines).
-        """
+        """Capture recent lines from the tmux pane."""
         try:
             result = subprocess.run(
                 ["tmux", "capture-pane", "-t", self.session, "-p", "-S", "-20"],
@@ -153,41 +172,28 @@ class VisibleTerminal(BaseTerminal):
             )
             raw = result.stdout
 
-            # Split into lines, strip trailing blank lines
             lines = raw.splitlines()
             while lines and not lines[-1].strip():
                 lines.pop()
 
-            # Drop the last line if it's just the prompt (waiting for input)
+            # Filter prompts
             if lines and lines[-1].strip().startswith(self.PROMPT.split(":")[0]):
                 lines.pop()
 
-            # Drop the command line itself (renderer already added it)
-            if lines and lines[-1].strip() == lines[-1].strip():
-                # crude: skip lines that look like prompts
-                lines = [
-                    l for l in lines
-                    if not l.strip().startswith("root@") or "#" not in l
-                ]
+            lines = [
+                l for l in lines
+                if not (l.strip().startswith("root@") and "#" in l)
+            ]
 
-            return "\n".join(lines[-15:])   # keep last 15 output lines
+            return "\n".join(lines[-15:])
         except Exception as e:
             logger.error(f"[VisibleTerminal] pane capture failed: {e}")
             return ""
 
     def capture_output(self) -> str:
-        """
-        Return the current tmux pane content as a string.
-
-        Used by TerminalManager.capture_output() to poll the terminal until
-        the output stabilises (stops changing between successive reads) -
-        this is how CommandStep knows a command has finished producing output.
-        """
+        """Return the current tmux pane content as a string."""
         if not self._session_alive():
-            logger.warning(
-                "[VisibleTerminal] capture_output: session '%s' is dead",
-                self.session,
-            )
+            logger.warning("[VisibleTerminal] capture_output: session '%s' is dead", self.session)
             return ""
 
         try:
@@ -201,12 +207,18 @@ class VisibleTerminal(BaseTerminal):
             return ""
 
     def capture(self, screenshot_path):
-        """Capture the visible window via scrot AND render the Pillow terminal."""
-        # Always re-render the Pillow screenshot
+        """Capture the visible window via scrot (if available) AND render the Pillow terminal."""
         terminal_renderer.render(screenshot_path)
-        # Optionally also grab the real screen
-        try:
-            subprocess.run(["scrot", "-u", "-o", screenshot_path + ".real.png"], timeout=5)
-        except Exception:
-            pass
+
+        if shutil.which("scrot") and os.environ.get("DISPLAY"):
+            try:
+                subprocess.run(
+                    ["scrot", "-u", "-o", f"{screenshot_path}.real.png"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=5
+                )
+            except Exception:
+                pass
+
         return screenshot_path

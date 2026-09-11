@@ -287,7 +287,7 @@ def list_profiles():
 
     console.print("\n[bold cyan]Available Profiles[/bold cyan]\n")
 
-    profile_dir = "profile"
+    profile_dir = "icaf/profile"
 
     if not os.path.exists(profile_dir):
         console.print("No profiles directory found.")

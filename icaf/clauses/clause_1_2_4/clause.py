@@ -18,11 +18,11 @@ from icaf.steps.screenshot_step import ScreenshotStep
 from icaf.steps.clear_terminal_step import ClearTerminalStep
 from icaf.utils.logger import logger
 
-from icaf.clauses.clause_1_2_4.testcases.tc_pwd_002 import run as run_tc002
-from icaf.clauses.clause_1_2_4.testcases.tc_pwd_003 import run as run_tc003
-from icaf.clauses.clause_1_2_4.testcases.tc_pwd_004 import run as run_tc004
-from icaf.clauses.clause_1_2_4.testcases.tc_pwd_005 import run as run_tc005
-from icaf.clauses.clause_1_2_4.testcases.tc_pwd_006 import run as run_tc006
+from icaf.clauses.clause_1_2_4.testcases.tc_124_002 import run as run_tc002
+from icaf.clauses.clause_1_2_4.testcases.tc_124_003 import run as run_tc003
+from icaf.clauses.clause_1_2_4.testcases.tc_124_004 import run as run_tc004
+from icaf.clauses.clause_1_2_4.testcases.tc_124_005 import run as run_tc005
+from icaf.clauses.clause_1_2_4.testcases.tc_124_006 import run as run_tc006
 from icaf.clauses.clause_1_2_4.testcases.tc4_hash_storage import run as run_tc4
 
 _TC_MANIFEST = [

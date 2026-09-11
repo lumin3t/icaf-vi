@@ -40,10 +40,41 @@ CLAUSE_CATALOG = {
             {"id": "TC12", "name": "SCP — incorrect authentication", "description": "Verify invalid SCP credentials are rejected."},
         ],
     },
-    "1.2.4": {"name": "Password Policy Compliance", "testcases": []},
-    "1.6.1": {"name": "Network Security", "testcases": []},
-    "1.6.5": {"name": "Secure Remote Access", "testcases": []},
-    "1.9.3": {"name": "Credential-based Vulnerability Scanning", "testcases": []},
+    "1.2.4": {
+        "name": "Password Policy Compliance",
+        "testcases": [
+            {"id": "TC1", "name": "Accept exactly 8-character password", "description": "Verify a valid eight-character password is accepted."},
+            {"id": "TC2", "name": "Accept password longer than 8 characters", "description": "Verify a valid password longer than eight characters is accepted."},
+            {"id": "TC3", "name": "Minimum length cannot be set below 8", "description": "Verify the configured minimum password length is eight characters."},
+            {"id": "TC4", "name": "OS-level PAM policy active", "description": "Verify the password-quality PAM policy is active."},
+            {"id": "TC5", "name": "Reject passwords shorter than the minimum", "description": "Verify too-short passwords are rejected."},
+            {"id": "TC6", "name": "Passwords stored hashed", "description": "Verify password hashes are not stored in plaintext."},
+        ],
+    },
+    "1.6.1": {
+        "name": "Cryptographic Based Secure Communication",
+        "testcases": [
+            {"id": "SSH_CIPHER_DETECTION", "name": "SSH cipher detection", "description": "Identify the SSH encryption algorithms supported by the DUT."},
+            {"id": "SSH_WEAK_CIPHER_NEGOTIATION", "name": "SSH weak-cipher negotiation", "description": "Verify weak SSH ciphers cannot be negotiated."},
+            {"id": "SSH_SECURE_COMMUNICATION", "name": "SSH secure communication", "description": "Verify SSH secure communication."},
+            {"id": "HTTPS_CIPHER_HARDENING", "name": "HTTPS cipher hardening", "description": "Verify TLS cipher security."},
+            {"id": "HTTPS_SECURE_COMMUNICATION", "name": "HTTPS secure communication", "description": "Verify HTTPS secure communication."},
+        ],
+    },
+    "1.6.5": {
+        "name": "Protecting Data and Information in Storage",
+        "testcases": [
+            {"id": "TC-165-001", "name": "Read access rights for sensitive files", "description": "Verify unprivileged users cannot read sensitive files while root can."},
+            {"id": "TC-165-002", "name": "Manipulation of sensitive system files", "description": "Verify unprivileged users cannot modify sensitive files."},
+            {"id": "TC-165-003", "name": "Passwords stored hashed, not in cleartext", "description": "Verify passwords and credentials are not stored in plaintext."},
+        ],
+    },
+    "1.9.3": {
+        "name": "Credential-based Vulnerability Scanning",
+        "testcases": [
+            {"id": "TC1", "name": "Conduct credential-based vulnerability scan", "description": "Verify the DUT can be assessed for known unmitigated vulnerabilities."},
+        ],
+    },
 }
 
 

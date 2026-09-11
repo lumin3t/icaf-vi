@@ -327,7 +327,10 @@ class SSHMixin:
             "rbac.show_role_policy_command",
             "do show running-config AAA authorization role {role}",
         ).format(role=role)
-        return self.ssh_run_show_command(context, cmd, settle_time=settle_time, timeout=timeout)"""
+        return self.ssh_run_show_command(context, cmd, settle_time=settle_time, timeout=timeout)
+
+'''Accidentally duplicated source retained below as inert text.
+
 ssh_mixin.py — Reusable SSH helpers for Clause 1.1.3 (Role Based Access
 Control) test cases.
 
@@ -657,3 +660,4 @@ class SSHMixin:
             "do show running-config AAA authorization role {role}",
         ).format(role=role)
         return self.ssh_run_show_command(context, cmd, settle_time=settle_time, timeout=timeout)
+'''

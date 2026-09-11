@@ -10,10 +10,10 @@ Registers the test cases that validate the DUT's RBAC implementation:
 """
 
 from icaf.core.clause import BaseClause
-from .tc1 import TC1RBACFeatureAvailability
-from .tc2 import TC2RoleCommandAuthorization
-from .tc3 import TC3AllowedOperationsPerRole
-from .tc4 import TC4UserCreationWithoutRole
+from .tc_113_001 import TC1RBACFeatureAvailability
+from .tc_113_002 import TC2RoleCommandAuthorization
+from .tc_113_003 import TC3AllowedOperationsPerRole
+from .tc_113_004 import TC4UserCreationWithoutRole
 
 
 class Clause_1_1_3(BaseClause):

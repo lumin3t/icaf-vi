@@ -67,7 +67,7 @@ def run(ssh):
 
     # Import renderer bridge — allows unpriv commands to appear in screenshots
     try:
-        from icaf.clauses.clause_1_6_5.clause_1_6_5_clause import mirror_to_terminal
+        from icaf.clauses.clause_1_6_5.clause import mirror_to_terminal
         _mirror = mirror_to_terminal
     except Exception:
         _mirror = lambda cmd, out, user="root": None  # noqa: E731
